@@ -641,11 +641,12 @@ export function SpiceApp() {
           <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: 24 }}>
             <FilterPanel isMobile={false} open filterHeat={filterHeat} setFilterHeat={setFilterHeat} filterCategory={filterCategory} setFilterCategory={setFilterCategory} filterOrigin={filterOrigin} setFilterOrigin={setFilterOrigin} spiceDB={spiceDB} lang={lang} onClose={() => {}} />
             <div>
-              <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
-                <div style={{ flex: 1, position: "relative" }}>
+              <div style={{ flex: 1, position: "relative" }}>
                   <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#727d3e", pointerEvents: "none" }}><IcoSearch /></span>
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder={T.search} style={{ ...inputStyle, padding: "11px 14px 11px 36px", fontSize: 14 }} />
                 </div>
+              <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
+                
                 <div style={{ fontSize: 13, color: "#5a6e2a", whiteSpace: "nowrap" }}>
                   <strong>{filtered.length}</strong> {T.of} {spiceDB.length} {T.spices}
                   {hasFilter && <button onClick={() => { setFilterHeat(""); setFilterCategory(""); setFilterOrigin(""); }} style={{ marginLeft: 8, background: "none", border: "none", color: "#8a9a2a", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>{T.reset}</button>}
