@@ -382,6 +382,58 @@ function FilterPanel({ isMobile, open, onClose, filterStrength, setFilterStrengt
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
+
+// ─── APP SWITCHER ─────────────────────────────────────────────────────────────
+const BRIEFCASE_APPS = [
+  { id: "wine",  name: "WineBriefcase",  emoji: "🍷" },
+  { id: "cigar", name: "CigarBriefcase", emoji: "🚬" },
+  { id: "spice", name: "SpiceBriefcase", emoji: "🌶️" },
+];
+
+function AppSwitcher({ current, primaryColor, accentColor }) {
+  const [open, setOpen] = useState(false);
+  const app = BRIEFCASE_APPS.find(a => a.id === current);
+
+  const navigate = (id) => {
+    setOpen(false);
+    window.history.pushState({}, "", id === "landing" ? "/" : "/" + id);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8, padding: "6px 10px", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit", whiteSpace: "nowrap" }}>
+        {app.emoji} {app.name}
+        <span style={{ fontSize: 9, opacity: 0.7, marginLeft: 2 }}>▼</span>
+      </button>
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 98 }} />
+          <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, background: "#fff", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.25)", zIndex: 99, minWidth: 210, overflow: "hidden", border: "1px solid #e0d0c0" }}>
+            <div style={{ padding: "8px 14px 6px", fontSize: 10, color: "#888", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700 }}>Briefcase Apps</div>
+            {BRIEFCASE_APPS.map(a => (
+              <button key={a.id} onClick={() => navigate(a.id)}
+                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: a.id === current ? "#f5f0eb" : "#fff", borderTop: "1px solid #f0e8e0", width: "100%", border: "none", borderTop: "1px solid #f0e8e0", cursor: "pointer", fontFamily: "inherit" }}>
+                <span style={{ fontSize: 20 }}>{a.emoji}</span>
+                <div style={{ textAlign: "left" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: a.id === current ? primaryColor : "#222" }}>{a.name}</div>
+                  {a.id === current && <div style={{ fontSize: 10, color: accentColor, fontWeight: 600 }}>● Aktiv</div>}
+                </div>
+              </button>
+            ))}
+            <button onClick={() => navigate("landing")}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#fff", borderTop: "1px solid #f0e8e0", width: "100%", border: "none", borderTop: "1px solid #f0e8e0", cursor: "pointer", fontFamily: "inherit" }}>
+              <span style={{ fontSize: 20 }}>💼</span>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#444", textAlign: "left" }}>Alle apper</div>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function CigarApp() {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
@@ -570,7 +622,7 @@ export function CigarApp() {
         <div style={{ background: "#2c1810", color: "#f4ede0", padding: "0 32px", position: "sticky", top: 0, zIndex: 50, boxShadow: "0 2px 12px rgba(0,0,0,0.3)" }}>
           <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", alignItems: "center", gap: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 0", marginRight: 32 }}>
-              
+              <AppSwitcher current="cigar" primaryColor="#2c1810" accentColor="#c8a04a" />
             </div>
             <div style={{ display: "flex", flex: 1 }}>
               {TABS.map(({ id, Icon, label, badge }) => {
@@ -714,7 +766,7 @@ export function CigarApp() {
       <div style={{ background: "#2c1810", color: "#f4ede0", padding: `${window.navigator.standalone ? "60px" : "8px"} 14px 22px`, position: "sticky", top: 0, zIndex: 50, boxShadow: "0 2px 12px rgba(0,0,0,0.3)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            
+            <AppSwitcher current="cigar" primaryColor="#2c1810" accentColor="#c8a04a" />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ fontSize: 12, color: "#a0886a" }}>{user}</span>

@@ -107,7 +107,7 @@ async function startAll() {
   let batch = 0;
   while (batch < TOTAL_BATCHES) {
     try {
-      const r = await fetch(`${BASE}/api/wine-build-db?batch=${batch}`);
+      const r = await fetch(`${BASE}/api/wine-build?action=build?batch=${batch}`);
       const data = await r.json();
 
       document.getElementById("p1-batch").textContent = batch + 1;
@@ -146,7 +146,7 @@ async function startScrape() {
 
   while (true) {
     try {
-      const r = await fetch(`${BASE}/api/wine-scrape`);
+      const r = await fetch(`${BASE}/api/wine-build?action=scrape`);
       const data = await r.json();
 
       if (data.done) {
@@ -200,7 +200,7 @@ async function startUpdate() {
   // Fase 1: finn nye produkter
   while (batch < TOTAL_BATCHES) {
     try {
-      const r = await fetch(`${BASE}/api/wine-build-db?mode=update&batch=${batch}`);
+      const r = await fetch(`${BASE}/api/wine-build?action=build?mode=update&batch=${batch}`);
       const data = await r.json();
 
       totalNew += data.new || 0;
