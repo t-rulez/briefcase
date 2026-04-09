@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WineBriefcase — Bygg database</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Georgia, serif; background: #3a0f0f; color: #fff; padding: 30px; min-height: 100vh; }
+    h1 { color: #c8922a; margin-bottom: 4px; }
+    .subtitle { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 24px; }
+    .phases { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .card { background: rgba(255,255,255,0.07); border-radius: 14px; padding: 20px; }
+    .card h2 { font-size: 14px; color: #c8922a; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .stats { display: flex; gap: 20px; margin-bottom: 12px; flex-wrap: wrap; }
+    .stat-val { font-size: 28px; font-weight: 800; color: #c8922a; line-height: 1; }
+    .stat-lbl { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+    .progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 10px 0; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #c8922a, #e6a030); border-radius: 3px; transition: width 0.4s; }
+    .btn { padding: 11px 22px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-primary { background: #c8922a; color: #fff; }
+    .btn-primary:hover { background: #e6a030; }
+    .btn-primary:disabled { opacity: 0.4; cursor: wait; }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; margin-left: 8px; }
+    .log-card { background: rgba(0,0,0,0.3); border-radius: 14px; padding: 16px; }
+    .log { font-size: 11px; font-family: monospace; max-height: 260px; overflow-y: auto; }
+    .log-line { padding: 1px 0; }
+    .ok  { color: #81c784; }
+    .err { color: #ef9a9a; }
+    .info { color: rgba(255,255,255,0.5); }
+    .phase-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-left: 8px; }
+    .phase-running { background: #c8922a; color: #fff; }
+    .phase-done { background: #2e7d32; color: #fff; }
+    .phase-idle { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
+    .total-card { background: rgba(200,146,42,0.15); border: 1px solid rgba(200,146,42,0.3); border-radius: 14px; padding: 20px; margin-bottom: 16px; display: flex; gap: 24px; align-items: center; }
+  </style>
+</head>
+<body>
+  <h1>🍷 WineBriefcase — Bygg vinedatabase</h1>
+  <p class="subtitle">Fase 1 samler varenumre fra Vinmonopolet-APIet. Fase 2 scraper detaljsidene for pris, alkohol, smaksprofil osv.</p>
+
+  <div class="total-card">
+    <div><div class="stat-val" id="total-wines">0</div><div class="stat-lbl">Viner i DB</div></div>
+    <div><div class="stat-val" id="total-queued">0</div><div class="stat-lbl">I kø</div></div>
+    <div><div class="stat-val" id="total-remaining">—</div><div class="stat-lbl">Gjenstår</div></div>
+    <div><div class="stat-val" id="total-new">—</div><div class="stat-lbl">Nye viner</div></div>
+    <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap">
+      <button class="btn btn-primary" id="startBtn" onclick="startAll()">▶ Bygg database</button>
+      <button class="btn btn-secondary" id="updateBtn" onclick="startUpdate()" title="Finn nye viner fra Vinmonopolet og legg til i databasen">🔄 Oppdater</button>
+      <button class="btn btn-secondary" onclick="startScrape()">Kun fase 2</button>
+    </div>
+  </div>
+
+  <div class="phases">
+    <div class="card">
+      <h2>Fase 1 — Samle IDs <span class="phase-badge phase-idle" id="phase1-badge">Venter</span></h2>
+      <div class="stats">
+        <div><div class="stat-val" id="p1-batch">0</div><div class="stat-lbl">Batch</div></div>
+        <div><div class="stat-val" id="p1-total">150</div><div class="stat-lbl">Totalt</div></div>
+        <div><div class="stat-val" id="p1-queued">0</div><div class="stat-lbl">IDs samlet</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="p1-progress" style="width:0%"></div></div>
+    </div>
+    <div class="card">
+      <h2>Fase 2 — Scrape detaljer <span class="phase-badge phase-idle" id="phase2-badge">Venter</span></h2>
+      <div class="stats">
+        <div><div class="stat-val" id="p2-done">0</div><div class="stat-lbl">Scraped</div></div>
+        <div><div class="stat-val" id="p2-remaining">—</div><div class="stat-lbl">Gjenstår</div></div>
+        <div><div class="stat-val" id="p2-wines">0</div><div class="stat-lbl">I DB</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="p2-progress" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="log-card">
+    <div class="log" id="log"></div>
+  </div>
+
+<script>
+const BASE = window.location.origin;
+const TOTAL_BATCHES = 150;
+let running = false;
+
+function log(msg, type = "info") {
+  const div = document.getElementById("log");
+  const line = document.createElement("div");
+  line.className = "log-line " + type;
+  line.textContent = new Date().toTimeString().slice(0,8) + " " + msg;
+  div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
+}
+
+function setBadge(id, text, cls) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = "phase-badge " + cls;
+}
+
+async function startAll() {
+  if (running) return;
+  running = true;
+  document.getElementById("startBtn").disabled = true;
+  log("=== Starter fase 1: samler alle varenumre ===", "info");
+  setBadge("phase1-badge", "Kjører", "phase-running");
+
+  // Phase 1: collect all IDs
+  let batch = 0;
+  while (batch < TOTAL_BATCHES) {
+    try {
+      const r = await fetch(`${BASE}/api/wine-build-db?batch=${batch}`);
+      const data = await r.json();
+
+      document.getElementById("p1-batch").textContent = batch + 1;
+      document.getElementById("p1-queued").textContent = data.totalInDb || 0;
+      document.getElementById("total-queued").textContent = data.totalInDb || 0;
+      document.getElementById("p1-progress").style.width = Math.round(((batch+1)/TOTAL_BATCHES)*100) + "%";
+
+      if (data.alreadyDone) {
+        log(`  ⏭ Batch ${batch+1}: allerede gjort`, "info");
+      } else {
+        for (const d of (data.details||[])) {
+          if (d.error) log(`  ✗ ${d.term}: ${d.error}`, "err");
+          else log(`  ✓ ${d.term}: ${d.found} funnet, ${d.queued||d.inserted} i kø`, "ok");
+        }
+      }
+
+      if (!data.hasMore) break;
+      batch++;
+    } catch(e) {
+      log(`Feil batch ${batch}: ${e.message} — prøver igjen...`, "err");
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  setBadge("phase1-badge", "Ferdig", "phase-done");
+  log("=== Fase 1 ferdig! Starter fase 2: scraper detaljer ===", "info");
+
+  await startScrape();
+}
+
+async function startScrape() {
+  setBadge("phase2-badge", "Kjører", "phase-running");
+  document.getElementById("startBtn").disabled = true;
+  let totalQueued = 0;
+
+  while (true) {
+    try {
+      const r = await fetch(`${BASE}/api/wine-scrape`);
+      const data = await r.json();
+
+      if (data.done) {
+        document.getElementById("p2-done").textContent = data.totalScraped || 0;
+        document.getElementById("p2-remaining").textContent = 0;
+        document.getElementById("p2-wines").textContent = data.totalWines || 0;
+        document.getElementById("total-wines").textContent = data.totalWines || 0;
+        document.getElementById("p2-progress").style.width = "100%";
+        log(`✅ Ferdig! ${data.totalWines} viner i databasen`, "ok");
+        setBadge("phase2-badge", "Ferdig", "phase-done");
+        break;
+      }
+
+      if (!totalQueued && data.remaining) totalQueued = data.remaining + (data.inserted||0);
+      const done = totalQueued - (data.remaining || 0);
+      const pct  = totalQueued > 0 ? Math.round((done / totalQueued) * 100) : 0;
+
+      document.getElementById("p2-done").textContent = done;
+      document.getElementById("p2-remaining").textContent = data.remaining || 0;
+      document.getElementById("p2-wines").textContent = data.totalWines || 0;
+      document.getElementById("total-wines").textContent = data.totalWines || 0;
+      document.getElementById("total-remaining").textContent = data.remaining || 0;
+      document.getElementById("p2-progress").style.width = pct + "%";
+
+      if (data.inserted > 0) log(`  ✓ Scraped ${data.inserted} viner (${data.remaining} igjen)`, "ok");
+      if (data.failed  > 0) log(`  ⚠ ${data.failed} feilet`, "err");
+
+    } catch(e) {
+      log(`Feil i fase 2: ${e.message}`, "err");
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    await new Promise(r => setTimeout(r, 800));
+  }
+
+  running = false;
+  document.getElementById("startBtn").disabled = false;
+  document.getElementById("startBtn").textContent = "▶ Kjør igjen";
+}
+
+async function startUpdate() {
+  if (running) return;
+  running = true;
+  document.getElementById("updateBtn").disabled = true;
+  document.getElementById("startBtn").disabled = true;
+  log("=== Starter oppdatering: søker etter nye viner ===", "info");
+  setBadge("phase1-badge", "Kjører", "phase-running");
+
+  let batch = 0;
+  let totalNew = 0;
+
+  // Fase 1: finn nye produkter
+  while (batch < TOTAL_BATCHES) {
+    try {
+      const r = await fetch(`${BASE}/api/wine-build-db?mode=update&batch=${batch}`);
+      const data = await r.json();
+
+      totalNew += data.new || 0;
+      document.getElementById("total-new").textContent = totalNew;
+      document.getElementById("p1-batch").textContent = batch + 1;
+      document.getElementById("p1-progress").style.width = Math.round(((batch+1)/TOTAL_BATCHES)*100) + "%";
+
+      if (data.new > 0) log(`  ✓ ${data.term}: ${data.new} nye funnet (${data.found} totalt)`, "ok");
+
+      if (!data.hasMore) break;
+      batch++;
+    } catch(e) {
+      log(`Feil batch ${batch}: ${e.message}`, "err");
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  setBadge("phase1-badge", "Ferdig", "phase-done");
+
+  if (totalNew === 0) {
+    log("✅ Ingen nye viner funnet — databasen er oppdatert!", "ok");
+    running = false;
+    document.getElementById("updateBtn").disabled = false;
+    document.getElementById("startBtn").disabled = false;
+    return;
+  }
+
+  log(`=== Fant ${totalNew} nye viner — starter scraping ===`, "info");
+  await startScrape();
+
+  document.getElementById("updateBtn").disabled = false;
+}
+</script>
+</body>
+</html>
