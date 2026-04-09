@@ -662,7 +662,7 @@ export function CigarApp() {
                 <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
                   <div style={{ flex: 1, position: "relative" }}>
                     <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#a0886a", pointerEvents: "none" }}><IcoSearch /></span>
-                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Søk på merke, navn eller smak..." style={{ ...inputStyle, padding: "11px 14px 11px 36px", fontSize: 14 }} />
+                  //  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Søk på merke, navn eller smak..." style={{ ...inputStyle, padding: "11px 14px 11px 36px", fontSize: 14 }} />
                   </div>
                   <div style={{ fontSize: 13, color: "#8b7355", whiteSpace: "nowrap" }}>
                     <strong>{filtered.length}</strong> av {cigarDB.length} sigarer
