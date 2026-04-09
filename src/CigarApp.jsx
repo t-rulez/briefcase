@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 
-
 // ─── CIGAR DATA (loaded from DB) ─────────────────────────────────────────────
 // cigarDB and {} are now stored in Postgres.
 // Data is fetched via /api/cigars on app load.
@@ -83,6 +82,55 @@ function StarRating({ value, onChange, max = 10 }) {
   );
 }
 
+
+// ─── APP SWITCHER ─────────────────────────────────────────────────────────────
+const BRIEFCASE_APPS = [
+  { id: "wine",  name: "WineBriefcase",  emoji: "🍷" },
+  { id: "cigar", name: "CigarBriefcase", emoji: "🚬" },
+  { id: "spice", name: "SpiceBriefcase", emoji: "🌶️" },
+];
+
+function AppSwitcher({ current, primaryColor, accentColor }) {
+  const [open, setOpen] = useState(false);
+  const app = BRIEFCASE_APPS.find(a => a.id === current);
+  const navigate = (id) => {
+    setOpen(false);
+    window.history.pushState({}, "", id === "landing" ? "/" : "/" + id);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+  return (
+    <div style={{ position: "relative" }}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8, padding: "6px 10px", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit", whiteSpace: "nowrap" }}>
+        {app.emoji} {app.name}
+        <span style={{ fontSize: 9, opacity: 0.7, marginLeft: 2 }}>▼</span>
+      </button>
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 98 }} />
+          <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, background: "#fff", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.25)", zIndex: 99, minWidth: 210, overflow: "hidden", border: "1px solid #e0d0c0" }}>
+            <div style={{ padding: "8px 14px 6px", fontSize: 10, color: "#888", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700 }}>Briefcase Apps</div>
+            {BRIEFCASE_APPS.map(a => (
+              <button key={a.id} onClick={() => navigate(a.id)}
+                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: a.id === current ? "#f5f0eb" : "#fff", borderTop: "1px solid #f0e8e0", width: "100%", border: "none", borderTop: "1px solid #f0e8e0", cursor: "pointer", fontFamily: "inherit" }}>
+                <span style={{ fontSize: 20 }}>{a.emoji}</span>
+                <div style={{ textAlign: "left" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: a.id === current ? primaryColor : "#222" }}>{a.name}</div>
+                  {a.id === current && <div style={{ fontSize: 10, color: accentColor, fontWeight: 600 }}>● Aktiv</div>}
+                </div>
+              </button>
+            ))}
+            <button onClick={() => navigate("landing")}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#fff", borderTop: "1px solid #f0e8e0", width: "100%", border: "none", borderTop: "1px solid #f0e8e0", cursor: "pointer", fontFamily: "inherit" }}>
+              <span style={{ fontSize: 20 }}>💼</span>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#444", textAlign: "left" }}>Alle apper</div>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 // ─── LOGIN / REGISTER SCREEN ─────────────────────────────────────────────────
 function AuthScreen({ onLogin }) {
@@ -382,58 +430,6 @@ function FilterPanel({ isMobile, open, onClose, filterStrength, setFilterStrengt
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
-
-// ─── APP SWITCHER ─────────────────────────────────────────────────────────────
-const BRIEFCASE_APPS = [
-  { id: "wine",  name: "WineBriefcase",  emoji: "🍷" },
-  { id: "cigar", name: "CigarBriefcase", emoji: "🚬" },
-  { id: "spice", name: "SpiceBriefcase", emoji: "🌶️" },
-];
-
-function AppSwitcher({ current, primaryColor, accentColor }) {
-  const [open, setOpen] = useState(false);
-  const app = BRIEFCASE_APPS.find(a => a.id === current);
-
-  const navigate = (id) => {
-    setOpen(false);
-    window.history.pushState({}, "", id === "landing" ? "/" : "/" + id);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  };
-
-  return (
-    <div style={{ position: "relative" }}>
-      <button onClick={() => setOpen(o => !o)}
-        style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8, padding: "6px 10px", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit", whiteSpace: "nowrap" }}>
-        {app.emoji} {app.name}
-        <span style={{ fontSize: 9, opacity: 0.7, marginLeft: 2 }}>▼</span>
-      </button>
-      {open && (
-        <>
-          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 98 }} />
-          <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, background: "#fff", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.25)", zIndex: 99, minWidth: 210, overflow: "hidden", border: "1px solid #e0d0c0" }}>
-            <div style={{ padding: "8px 14px 6px", fontSize: 10, color: "#888", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700 }}>Briefcase Apps</div>
-            {BRIEFCASE_APPS.map(a => (
-              <button key={a.id} onClick={() => navigate(a.id)}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: a.id === current ? "#f5f0eb" : "#fff", borderTop: "1px solid #f0e8e0", width: "100%", border: "none", borderTop: "1px solid #f0e8e0", cursor: "pointer", fontFamily: "inherit" }}>
-                <span style={{ fontSize: 20 }}>{a.emoji}</span>
-                <div style={{ textAlign: "left" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: a.id === current ? primaryColor : "#222" }}>{a.name}</div>
-                  {a.id === current && <div style={{ fontSize: 10, color: accentColor, fontWeight: 600 }}>● Aktiv</div>}
-                </div>
-              </button>
-            ))}
-            <button onClick={() => navigate("landing")}
-              style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#fff", borderTop: "1px solid #f0e8e0", width: "100%", border: "none", borderTop: "1px solid #f0e8e0", cursor: "pointer", fontFamily: "inherit" }}>
-              <span style={{ fontSize: 20 }}>💼</span>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#444", textAlign: "left" }}>Alle apper</div>
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 export function CigarApp() {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
@@ -643,9 +639,18 @@ export function CigarApp() {
               <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, padding: "7px 12px", color: "#f4ede0", cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}><IcoLogout /> {T.logout}</button>
             </div>
           </div>
+        {tab === "database" && (
+          <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", gap: 8, padding: "10px 32px 12px" }}>
+            <div style={{ flex: 1, position: "relative" }}>
+              <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "rgba(244,237,224,0.5)", pointerEvents: "none" }}><IcoSearch /></span>
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Søk merke, navn, smak..." style={{ width: "100%", padding: "10px 12px 10px 34px", border: "none", borderRadius: 10, fontSize: 14, background: "rgba(255,255,255,0.1)", color: "#f4ede0", boxSizing: "border-box", outline: "none" }} />
+            </div>
+            {hasFilter && <button onClick={() => { setFilterStrength(""); setFilterCountry(""); setFilterBrand(""); }} style={{ background: "#c8a04a", border: "none", borderRadius: 10, padding: "0 16px", cursor: "pointer", color: "#2c1810", fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}>Nullstill ×</button>}
+          </div>
+        )}
         </div>
 
-        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 32px" }}>
+      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 32px" }}>
 
           {/* DATABASE TAB — sidebar layout */}
           {tab === "database" && (
