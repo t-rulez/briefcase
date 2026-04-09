@@ -3,7 +3,8 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/build.html", "destination": "/build.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
