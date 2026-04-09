@@ -1321,17 +1321,34 @@ export function WineApp() {
           </div>
 
           {isDesktop && (
-            <div style={{ display:"flex", flex:1, marginLeft:28 }}>
+            <div style={{ display:"flex", flex:1, marginLeft:28, alignItems:"center", gap:8 }}>
               {TABS.map(({ id, Icon, label, badge }) => {
                 const active = tab === id;
                 return (
                   <button key={id} onClick={() => id==="scan" ? setShowScanner(true) : handleTabSwitch(id)}
-                    style={{ background:"none", border:"none", color:active?C.gold:"rgba(255,255,255,0.6)", cursor:"pointer", padding:"16px 18px", fontSize:14, fontWeight:active?700:500, borderBottom:active?`2px solid ${C.gold}`:"2px solid transparent", display:"flex", alignItems:"center", gap:6, fontFamily:"inherit", position:"relative" }}>
+                    style={{ background:"none", border:"none", color:active?C.gold:"rgba(255,255,255,0.6)", cursor:"pointer", padding:"16px 18px", fontSize:14, fontWeight:active?700:500, borderBottom:active?`2px solid ${C.gold}`:"2px solid transparent", display:"flex", alignItems:"center", gap:6, fontFamily:"inherit", position:"relative", whiteSpace:"nowrap" }}>
                     <Icon s={17} />{label}
                     {badge !== null && <span style={{ background:C.gold, color:C.text, borderRadius:10, padding:"1px 6px", fontSize:10, fontWeight:800 }}>{badge}</span>}
                   </button>
                 );
               })}
+              {tab === "database" && (
+                <div style={{ display:"flex", gap:8, flex:1, marginLeft:8 }}>
+                  <div style={{ flex:1, position:"relative" }}>
+                    <span style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)", color:"rgba(255,255,255,0.45)", pointerEvents:"none" }}><IcoSearch /></span>
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Søk vin, produsent, drue, region..."
+                      style={{ width:"100%", padding:"9px 12px 9px 34px", border:"none", borderRadius:10, fontSize:14, background:"rgba(255,255,255,0.12)", color:"#fff", boxSizing:"border-box", outline:"none" }} />
+                  </div>
+                  <button onClick={() => setFilterOpen(true)}
+                    style={{ background:hasFilter?C.gold:"rgba(255,255,255,0.12)", border:"none", borderRadius:10, minWidth:42, cursor:"pointer", color:hasFilter?C.text:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <IcoFilter />
+                  </button>
+                  <button onClick={() => setShowScanner(true)}
+                    style={{ background:C.accent, border:"none", borderRadius:10, cursor:"pointer", color:"#fff", display:"flex", alignItems:"center", gap:4, padding:"0 12px", fontSize:12, fontWeight:600, whiteSpace:"nowrap" }}>
+                    <IcoCamera s={15} /> Skann
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -1343,9 +1360,9 @@ export function WineApp() {
           </div>
         </div>
 
-        {/* Søkefelt */}
-        {tab === "database" && (
-          <div style={{ maxWidth:isDesktop?1400:undefined, margin:isDesktop?"0 auto":undefined, display:"flex", gap:8, padding:isDesktop?"10px 32px 14px":"10px 14px 14px" }}>
+        {/* Søkefelt mobil */}
+        {!isDesktop && tab === "database" && (
+          <div style={{ display:"flex", gap:8, padding:"10px 14px 14px" }}>
             <div style={{ flex:1, position:"relative" }}>
               <span style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)", color:"rgba(255,255,255,0.45)", pointerEvents:"none" }}><IcoSearch /></span>
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Søk vin, produsent, drue, region..."
@@ -1357,7 +1374,7 @@ export function WineApp() {
             </button>
             <button onClick={() => setShowScanner(true)}
               style={{ background:C.accent, border:"none", borderRadius:10, minWidth:42, cursor:"pointer", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", gap:4, padding:"0 12px", fontSize:12, fontWeight:600 }}>
-              <IcoCamera s={15} />{isDesktop?" Skann":""}
+              <IcoCamera s={15} />
             </button>
           </div>
         )}

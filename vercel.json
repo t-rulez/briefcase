@@ -2,9 +2,9 @@
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/build.html", "destination": "/build.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/build.html", "dest": "/build.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
