@@ -630,10 +630,7 @@ export function SpiceApp() {
           </div>
         {tab === "database" && (
           <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", gap: 8, padding: "10px 32px 12px" }}>
-            <div style={{ flex: 1, position: "relative" }}>
-              <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "rgba(253,250,240,0.5)", pointerEvents: "none" }}><IcoSearch /></span>
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Søk krydder, smak, opprinnelse..." style={{ width: "100%", padding: "10px 12px 10px 34px", border: "none", borderRadius: 10, fontSize: 14, background: "rgba(255,255,255,0.1)", color: "#f4f7eb", boxSizing: "border-box", outline: "none" }} />
-            </div>
+            
             {hasFilter && <button onClick={() => { setFilterHeat(""); setFilterCategory(""); setFilterOrigin(""); }} style={{ background: "#8a9a2a", border: "none", borderRadius: 10, padding: "0 16px", cursor: "pointer", color: "#2d3a12", fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}>Nullstill ×</button>}
           </div>
         )}
