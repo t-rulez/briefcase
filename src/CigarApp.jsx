@@ -658,7 +658,7 @@ export function CigarApp() {
               <div>
                 <FilterPanel isMobile={false} open filterStrength={filterStrength} setFilterStrength={setFilterStrength} filterCountry={filterCountry} setFilterCountry={setFilterCountry} filterBrand={filterBrand} setFilterBrand={setFilterBrand} cigarDB={cigarDB} onClose={() => {}} />
               </div>
-    //          <div>
+    /*          <div>
     //            <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
     //              <div style={{ flex: 1, position: "relative" }}>
     //               <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#a0886a", pointerEvents: "none" }}><IcoSearch /></span>
@@ -673,7 +673,7 @@ export function CigarApp() {
     //              {filtered.map(c => <CigarCard key={c.id} cigar={c} onSelect={setSelectedCigar} onAddExperience={setAddingExp} onAddToStock={addToStock} isDesktop />)}
     //            </div>
     //            {filtered.length === 0 && <div style={{ textAlign: "center", padding: "60px 20px", color: "#a0886a" }}><div style={{ fontSize: 40, marginBottom: 10 }}>🔍</div><div style={{ fontSize: 16, fontWeight: 600 }}>Ingen sigarer funnet</div></div>}
-    //          </div>
+    */          </div>
             </div>
           )}
 
