@@ -261,6 +261,28 @@ function WineCard({ wine, onSelect, onAddTasting, onAddToCellar, isDesktop }) {
 // ─── WINE DETAIL ──────────────────────────────────────────────────────────────
 function WineDetail({ wine, onClose, onAddTasting, onAddToCellar, isMobile }) {
   if (!wine) return null;
+  const [analysis, setAnalysis]       = useState(null);
+  const [analyzing, setAnalyzing]     = useState(false);
+  const [analyzeError, setAnalyzeError] = useState("");
+
+  const runAnalysis = async () => {
+    setAnalyzing(true);
+    setAnalysis(null);
+    setAnalyzeError("");
+    try {
+      const r = await fetch("/api/wine-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wineName: wine.name + (wine.year ? " " + wine.year : "") }),
+      });
+      const d = await r.json();
+      if (d.error) { setAnalyzeError(d.error); }
+      else { setAnalysis(d.analysis); }
+    } catch(e) {
+      setAnalyzeError("Noe gikk galt: " + e.message);
+    }
+    setAnalyzing(false);
+  };
   const cat = wine.mainCategory || "";
   const catColor = cat.includes("Rød") ? C.primary : cat.includes("Hvit") ? "#7a6a20" : cat.includes("Rosé") ? "#c06080" : "#4a6a8a";
 
@@ -339,10 +361,33 @@ function WineDetail({ wine, onClose, onAddTasting, onAddToCellar, isMobile }) {
           <IcoNotes s={15} /> Smaksnotat
         </button>
       </div>
-      <a href={wine.url} target="_blank" rel="noreferrer"
-        style={{ display:"block", textAlign:"center", fontSize:13, color:C.primary3, textDecoration:"none", padding:"8px", borderRadius:8, border:`1px solid ${C.border}` }}>
-        Se på Vinmonopolet.no ↗
-      </a>
+      <div style={{ display:"flex", gap:8 }}>
+        <a href={wine.url} target="_blank" rel="noreferrer"
+          style={{ flex:1, display:"block", textAlign:"center", fontSize:13, color:C.primary3, textDecoration:"none", padding:"8px", borderRadius:8, border:`1px solid ${C.border}` }}>
+          Se på Vinmonopolet.no ↗
+        </a>
+        <button onClick={runAnalysis} disabled={analyzing}
+          style={{ flex:1, background:analyzing?"#f5f0f5":C.primary, color:"#fff", border:"none", borderRadius:8, padding:"8px 12px", fontSize:13, fontWeight:700, cursor:analyzing?"wait":"pointer", fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"center", gap:6, opacity:analyzing?0.8:1 }}>
+          {analyzing ? "🤔 Analyserer..." : "🤖 AI-analyse"}
+        </button>
+      </div>
+
+      {analyzeError && (
+        <div style={{ background:"#fbe9e7", color:C.red, padding:"10px 14px", borderRadius:8, fontSize:13, marginTop:8 }}>
+          {analyzeError}
+        </div>
+      )}
+
+      {analysis && (
+        <div style={{ marginTop:12, background:C.bg, borderRadius:12, padding:"16px", border:`1px solid ${C.border}` }}>
+          <div style={{ fontSize:12, color:C.textSoft, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:10 }}>
+            🤖 AI-analyse
+          </div>
+          <div style={{ fontSize:14, color:C.text, lineHeight:1.75, whiteSpace:"pre-wrap" }}>
+            {analysis}
+          </div>
+        </div>
+      )}
     </>
   );
   return <Overlay isMobile={isMobile} onClose={onClose} wide>{content}</Overlay>;
