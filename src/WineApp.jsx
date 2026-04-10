@@ -392,10 +392,11 @@ function WineDetail({ wine, onClose, onAddTasting, onAddToCellar, isMobile }) {
                 <div key={i} style={{ marginBottom: line.trim() === "" ? 8 : 2 }}>
                   {parts.map((part, j) =>
                     urlRegex.test(part)
-                      ? <a key={j} href={part} target="_blank" rel="noreferrer"
-                          style={{ color:C.primary, fontWeight:600, wordBreak:"break-all" }}>
-                          🔗 Søk på Vinmonopolet
-                        </a>
+                      ? <button key={j}
+                          onClick={() => window.open(part, "_blank", "noopener,noreferrer")}
+                          style={{ color:C.primary, fontWeight:600, background:"none", border:"none", cursor:"pointer", fontFamily:"inherit", fontSize:"inherit", padding:0, textDecoration:"underline" }}>
+                          🔗 Søk på Vinmonopolet ↗
+                        </button>
                       : <span key={j}>{part}</span>
                   )}
                 </div>
@@ -1383,10 +1384,10 @@ export function WineApp() {
 
           {isDesktop && (
             <div style={{ display:"flex", flex:1, marginLeft:28 }}>
-              {TABS.map(({ id, Icon, label, badge }) => {
+              {TABS.filter(t => t.id !== "scan").map(({ id, Icon, label, badge }) => {
                 const active = tab === id;
                 return (
-                  <button key={id} onClick={() => id==="scan" ? setShowScanner(true) : handleTabSwitch(id)}
+                  <button key={id} onClick={() => handleTabSwitch(id)}
                     style={{ background:"none", border:"none", color:active?C.gold:"rgba(255,255,255,0.6)", cursor:"pointer", padding:"16px 18px", fontSize:14, fontWeight:active?700:500, borderBottom:active?`2px solid ${C.gold}`:"2px solid transparent", display:"flex", alignItems:"center", gap:6, fontFamily:"inherit", position:"relative" }}>
                     <Icon s={17} />{label}
                     {badge !== null && <span style={{ background:C.gold, color:C.text, borderRadius:10, padding:"1px 6px", fontSize:10, fontWeight:800 }}>{badge}</span>}
@@ -1410,14 +1411,18 @@ export function WineApp() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Søk vin, produsent, drue, region..."
                 style={{ width:"100%", padding:"10px 12px 10px 34px", border:"none", borderRadius:10, fontSize:14, background:"rgba(255,255,255,0.12)", color:"#fff", boxSizing:"border-box", outline:"none" }} />
             </div>
-            <button onClick={() => setFilterOpen(true)}
-              style={{ background:hasFilter?C.gold:"rgba(255,255,255,0.12)", border:"none", borderRadius:10, minWidth:42, cursor:"pointer", color:hasFilter?C.text:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <IcoFilter />
-            </button>
-            <button onClick={() => setShowScanner(true)}
-              style={{ background:C.accent, border:"none", borderRadius:10, minWidth:42, cursor:"pointer", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", gap:4, padding:"0 12px", fontSize:12, fontWeight:600 }}>
-              <IcoCamera s={15} />{isDesktop?" Skann":""}
-            </button>
+            {!isDesktop && (
+              <>
+                <button onClick={() => setFilterOpen(true)}
+                  style={{ background:hasFilter?C.gold:"rgba(255,255,255,0.12)", border:"none", borderRadius:10, minWidth:42, cursor:"pointer", color:hasFilter?C.text:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <IcoFilter />
+                </button>
+                <button onClick={() => setShowScanner(true)}
+                  style={{ background:C.accent, border:"none", borderRadius:10, minWidth:42, cursor:"pointer", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", gap:4, padding:"0 12px", fontSize:12, fontWeight:600 }}>
+                  <IcoCamera s={15} />
+                </button>
+              </>
+            )}
           </div>
         )}
         </div>
