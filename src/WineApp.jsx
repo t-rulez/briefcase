@@ -383,8 +383,24 @@ function WineDetail({ wine, onClose, onAddTasting, onAddToCellar, isMobile }) {
           <div style={{ fontSize:12, color:C.textSoft, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:10 }}>
             🤖 AI-analyse
           </div>
-          <div style={{ fontSize:14, color:C.text, lineHeight:1.75, whiteSpace:"pre-wrap" }}>
-            {analysis}
+          <div style={{ fontSize:14, color:C.text, lineHeight:1.75 }}>
+            {analysis.split("\n").map((line, i) => {
+              // Detect URLs and make them clickable
+              const urlRegex = /(https?:\/\/[^\s]+)/g;
+              const parts = line.split(urlRegex);
+              return (
+                <div key={i} style={{ marginBottom: line.trim() === "" ? 8 : 2 }}>
+                  {parts.map((part, j) =>
+                    urlRegex.test(part)
+                      ? <a key={j} href={part} target="_blank" rel="noreferrer"
+                          style={{ color:C.primary, fontWeight:600, wordBreak:"break-all" }}>
+                          🔗 Søk på Vinmonopolet
+                        </a>
+                      : <span key={j}>{part}</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
