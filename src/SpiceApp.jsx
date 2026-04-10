@@ -628,9 +628,13 @@ export function SpiceApp() {
             </button>
             <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, padding: "7px 12px", color: "#f4f7eb", cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}><IcoLogout /> {T.logout}</button>
           </div>
+        </div>
         {tab === "database" && (
           <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", gap: 8, padding: "10px 32px 12px" }}>
-            
+            <div style={{ flex: 1, position: "relative" }}>
+              <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "rgba(253,250,240,0.5)", pointerEvents: "none" }}><IcoSearch /></span>
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Søk krydder, smak, opprinnelse..." style={{ width: "100%", padding: "10px 12px 10px 34px", border: "none", borderRadius: 10, fontSize: 14, background: "rgba(255,255,255,0.1)", color: "#f4f7eb", boxSizing: "border-box", outline: "none" }} />
+            </div>
             {hasFilter && <button onClick={() => { setFilterHeat(""); setFilterCategory(""); setFilterOrigin(""); }} style={{ background: "#8a9a2a", border: "none", borderRadius: 10, padding: "0 16px", cursor: "pointer", color: "#2d3a12", fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}>Nullstill ×</button>}
           </div>
         )}
@@ -641,13 +645,11 @@ export function SpiceApp() {
           <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: 24 }}>
             <FilterPanel isMobile={false} open filterHeat={filterHeat} setFilterHeat={setFilterHeat} filterCategory={filterCategory} setFilterCategory={setFilterCategory} filterOrigin={filterOrigin} setFilterOrigin={setFilterOrigin} spiceDB={spiceDB} lang={lang} onClose={() => {}} />
             <div>
-               <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", gap: 8, padding: "10px 32px 12px" }}>
+              <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
                 <div style={{ flex: 1, position: "relative" }}>
                   <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#727d3e", pointerEvents: "none" }}><IcoSearch /></span>
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder={T.search} style={{ ...inputStyle, padding: "11px 14px 11px 36px", fontSize: 14 }} />
                 </div>
-              </div>   
-              <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
                 <div style={{ fontSize: 13, color: "#5a6e2a", whiteSpace: "nowrap" }}>
                   <strong>{filtered.length}</strong> {T.of} {spiceDB.length} {T.spices}
                   {hasFilter && <button onClick={() => { setFilterHeat(""); setFilterCategory(""); setFilterOrigin(""); }} style={{ marginLeft: 8, background: "none", border: "none", color: "#8a9a2a", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>{T.reset}</button>}
@@ -748,7 +750,6 @@ export function SpiceApp() {
       {selectedSpice && !addingNote && <SpiceDetail spice={selectedSpice} onClose={() => setSelectedSpice(null)} onAddNote={(s) => { setSelectedSpice(null); setAddingNote(s); }} onAddToPantry={(s) => { addToPantry(s); setSelectedSpice(null); }} isMobile={false} lang={lang} />}
       {addingNote && <AddNoteSheet spice={addingNote} onClose={() => { setAddingNote(null); setEditingEntry(null); }} onSave={saveNote} isMobile={false} existing={editingEntry} />}
     </div>
-      </div>
   );
 
   // ── MOBILE ──
